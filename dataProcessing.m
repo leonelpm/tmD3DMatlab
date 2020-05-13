@@ -71,7 +71,7 @@ for j = 1:length(dummyTM)
     
     t0 = dummyTM(j).data{1,2}(1);
     tf = dummyTM(j).data{1,2}(end);
-    times = t0:tStep:tf;
+    times = linspace(t0,tf,2000);
     
     for n = 1:length(times)
         deltaT = times(n) - dummyTM(j).tmTime;
@@ -149,7 +149,7 @@ for j = 1:length(dummyNTM)
     
     t0 = dummyNTM(j).data{1,2}(1);
     tf = dummyNTM(j).data{1,2}(end);
-    times = t0:tStep:tf;
+    times = linspace(t0,tf,2000);
     
     for k = 1:length(dummyNTM(j).data)
         proNTMData{j}(k,:) = interp1(dummyNTM(j).data{k,2},dummyNTM(j).data{k,3},times,'spline');
@@ -178,43 +178,41 @@ save('proNTMData.mat','proNTMData','NTMLabels','-v7.3')
 %% Assemble data into a single structure
 
 % Merge TM and non-TM into a single cell and permute randomly
-allDataCell = [proTMData; proNTMData];
-n = numel(allDataCell);
-ii = randperm(n);
-[~,previous_order] = sort(ii);
-allData = allDataCell(ii);
+% allDataCell = [proTMData; proNTMData];
+% n = numel(allDataCell);
+% ii = randperm(n);
+% % [~,previous_order] = sort(ii);
+% allData = allDataCell(ii);
+% 
+% % Move data to structure amenable for Python (e.g. csv)
+% data4Training = [];
+% 
+% for j = 1:length(allData)
+%     
+%     fprintf('Merge shot item #%i\n',j)
+%     data4Training = vertcat(data4Training, allData{j}'); 
+%     
+% end
+% 
+% writematrix(data4Training,'data4Training.csv') 
+% 
+% 
+% % Merge TM and non-TM labels into a single cell and permute randomly
+% allLabelsCell = [TMLabels; NTMLabels];
+% allLabels = allLabelsCell(ii);
+% 
+% % Move labels to structure amenable for Python (e.g. csv)
+% labels4Training = [];
+% 
+% for j = 1:length(allLabels)
+%     
+%     fprintf('Merge label item #%i\n',j)
+%     labels4Training = vertcat(labels4Training, allLabels{j}'); 
+%     
+% end
+% 
+% writematrix(labels4Training,'labels4Training.csv')
 
-% Move data to structure amenable for Python (e.g. csv)
-data4Training = [];
-
-for j = 1:length(allData)
-    
-    fprintf('Merge shot item #%i\n',j)
-    data4Training = vertcat(data4Training, allData{j}'); 
-    
-end
-
-writematrix(data4Training,'data4Training.csv') 
-
-
-% Merge TM and non-TM labels into a single cell and permute randomly
-allLabelsCell = [TMLabels; NTMLabels];
-allLabels = allLabelsCell(ii);
-
-% Move labels to structure amenable for Python (e.g. csv)
-labels4Training = [];
-
-for j = 1:length(allLabels)
-    
-    fprintf('Merge label item #%i\n',j)
-    labels4Training = vertcat(labels4Training, allLabels{j}'); 
-    
-end
-
-writematrix(labels4Training,'labels4Training.csv')
-
-
-% save('data4Training.mat','data4Training','-v7.3')
 
 %% Assemble data into a 3D matrix
 
@@ -222,20 +220,19 @@ writematrix(labels4Training,'labels4Training.csv')
 allDataCell = [proTMData; proNTMData];
 n = numel(allDataCell);
 ii = randperm(n);
-[~,previous_order] = sort(ii);
+% [~,previous_order] = sort(ii);
 allData = allDataCell(ii);
 
 % Move data to structure amenable for Python (e.g. csv)
-data4Training = [];
+data3D = zeros(length(allData),2000,24);
 
 for j = 1:length(allData)
     
     fprintf('Merge shot item #%i\n',j)
-    data4Training = vertcat(data4Training, allData{j}'); 
+    data3D(j,:,:) = allData{j}'; 
     
 end
 
-writematrix(data4Training,'data4Training.csv') 
 
 
 % Merge TM and non-TM labels into a single cell and permute randomly
@@ -243,19 +240,18 @@ allLabelsCell = [TMLabels; NTMLabels];
 allLabels = allLabelsCell(ii);
 
 % Move labels to structure amenable for Python (e.g. csv)
-labels4Training = [];
+labels3D = zeros(length(allData),2000,1);
 
 for j = 1:length(allLabels)
     
     fprintf('Merge label item #%i\n',j)
-    labels4Training = vertcat(labels4Training, allLabels{j}'); 
+    labels3D(j,:) = allLabels{j}'; 
     
 end
 
-writematrix(labels4Training,'labels4Training.csv')
-
-
-% save('data4Training.mat','data4Training','-v7.3')
+% Save 3D data
+save('Data3D.mat','data3D','-v7.3')
+save('Labels3D.mat','labels3D','-v7.3')
 
 
 %------------- END OF CODE --------------
